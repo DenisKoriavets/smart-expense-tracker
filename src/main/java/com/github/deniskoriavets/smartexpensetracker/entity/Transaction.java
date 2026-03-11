@@ -7,7 +7,7 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Entity
-@Table(name = "accounts")
+@Table(name = "transactions")
 @Getter
 @Setter
 @Builder
@@ -15,7 +15,7 @@ import java.util.UUID;
 @AllArgsConstructor
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @ToString(onlyExplicitlyIncluded = true)
-public class Account {
+public class Transaction {
     @Id
     @GeneratedValue
     @EqualsAndHashCode.Include
@@ -23,22 +23,23 @@ public class Account {
     private UUID id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false)
-    private User user;
+    @JoinColumn(name = "account_id", nullable = false)
+    private Account account;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "category_id", nullable = false)
+    private Category category;
 
     @Column(nullable = false)
-    @ToString.Include
-    private String name;
-
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    @ToString.Include
-    private Currency currency;
+    private Long amount;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    @ToString.Include
-    private AccountType type;
+    private TransactionType type;
+
+    private String description;
+
+    private LocalDateTime transactionDate;
 
     @Column(nullable = false)
     private LocalDateTime createdAt;

@@ -3,11 +3,10 @@ package com.github.deniskoriavets.smartexpensetracker.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Entity
-@Table(name = "accounts")
+@Table(name = "categories")
 @Getter
 @Setter
 @Builder
@@ -15,7 +14,7 @@ import java.util.UUID;
 @AllArgsConstructor
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @ToString(onlyExplicitlyIncluded = true)
-public class Account {
+public class Category {
     @Id
     @GeneratedValue
     @EqualsAndHashCode.Include
@@ -33,13 +32,9 @@ public class Account {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     @ToString.Include
-    private Currency currency;
+    private CategoryType type;
 
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    @ToString.Include
-    private AccountType type;
+    private Long monthlyBudget;
 
-    @Column(nullable = false)
-    private LocalDateTime createdAt;
+    private String iconCode;
 }
