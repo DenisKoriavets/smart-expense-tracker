@@ -3,6 +3,7 @@ package com.github.deniskoriavets.smartexpensetracker.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.List;
 import java.util.UUID;
 
 @Entity
@@ -37,4 +38,7 @@ public class Category {
     private Long monthlyBudget;
 
     private String iconCode;
+
+    @OneToMany(mappedBy = "category", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Transaction> transactions;
 }
