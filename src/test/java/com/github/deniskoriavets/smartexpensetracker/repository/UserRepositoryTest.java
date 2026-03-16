@@ -40,6 +40,28 @@ class UserRepositoryTest {
         // Assert
         assertThat(foundUser).isPresent();
         assertThat(foundUser.get().getEmail()).isEqualTo("test@kma.edu.ua");
-        assertThat(foundUser.get().getId()).isNotNull(); // Перевірка автогенерації UUID
+        assertThat(foundUser.get().getId()).isNotNull();
+    }
+
+    @Test
+    @DisplayName("Should return empty optional when email not exists")
+    void shouldReturnEmptyOptionalWhenEmailNotExists() {
+        // Arrange
+        User user = User.builder()
+                .email("test@kma.edu.ua")
+                .passwordHash("hashed_password")
+                .firstName("Denys")
+                .lastName("Koriavets")
+                .role(Role.USER)
+                .createdAt(LocalDateTime.now())
+                .isActive(true)
+                .build();
+
+        // Act
+        userRepository.save(user);
+        Optional<User> foundUser = userRepository.findByEmail("test1@kma.edu.ua");
+
+        //Assert
+        assertThat(foundUser).isNotPresent();
     }
 }
