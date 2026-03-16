@@ -1,4 +1,4 @@
-package com.github.deniskoriavets.smartexpensetracker.service;
+package com.github.deniskoriavets.smartexpensetracker.security;
 
 import com.github.deniskoriavets.smartexpensetracker.config.JwtProperties;
 import io.jsonwebtoken.Claims;
@@ -7,7 +7,6 @@ import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
