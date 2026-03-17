@@ -10,3 +10,10 @@ spring:
     properties:
       hibernate:
         format_sql: true
+application:
+  security:
+    jwt:
+      secret-key: ${JWT_SECRET_KEY}
+      expiration: 900000 # 15 хвилин у мілісекундах (Access Token)
+      refresh-token:
+        expiration: 604800000 # 7 днів (Refresh Token)
