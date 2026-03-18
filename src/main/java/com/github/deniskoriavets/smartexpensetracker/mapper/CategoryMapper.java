@@ -9,7 +9,7 @@ import org.mapstruct.MappingTarget;
 
 @Mapper(componentModel = "spring")
 public interface CategoryMapper {
-    Category toEnity(CreateCategoryDto createCategoryDto);
+    Category toEntity(CreateCategoryDto createCategoryDto);
 
     CategoryResponseDto toDto(Category category);
 
