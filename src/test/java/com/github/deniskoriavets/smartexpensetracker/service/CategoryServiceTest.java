@@ -62,7 +62,7 @@ class CategoryServiceTest {
         testCategory = Category.builder()
                 .id(UUID.randomUUID())
                 .user(testUser)
-                .name("Food")
+                .name("Test")
                 .type(CategoryType.EXPENSE)
                 .build();
     }

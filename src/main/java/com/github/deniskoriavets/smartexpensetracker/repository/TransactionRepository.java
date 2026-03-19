@@ -10,6 +10,8 @@ import java.util.List;
 import java.util.UUID;
 
 public interface TransactionRepository extends JpaRepository<Transaction, UUID> {
+    List<Transaction> findByAccountId(UUID accountId);
+
     @Query("select t from Transaction t where t.account.id = :accountId and t.transactionDate between :startDate and :endDate")
     List<Transaction> findByAccountIdAndTransactionDateBetween(UUID accountId, LocalDateTime startDate, LocalDateTime endDate);
 
