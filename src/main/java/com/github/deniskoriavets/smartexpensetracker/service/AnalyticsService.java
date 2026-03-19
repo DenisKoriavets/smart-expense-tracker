@@ -9,6 +9,7 @@ import com.github.deniskoriavets.smartexpensetracker.repository.TransactionRepos
 import com.github.deniskoriavets.smartexpensetracker.repository.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -28,6 +29,8 @@ public class AnalyticsService {
     private final CategoryRepository categoryRepository;
     private final UserRepository userRepository;
 
+    @Cacheable(value = "analyticsSummary", key = "T(org.springframework.security.core.context.SecurityContextHolder)" +
+            ".getContext().getAuthentication().getName() + '_' + #from + '_' + #to")
     public AnalyticsSummaryDto getSummary(LocalDateTime from, LocalDateTime to) {
         User user = getCurrentUser();
 
@@ -44,6 +47,8 @@ public class AnalyticsService {
         return new AnalyticsSummaryDto(incomes, expenses, balance);
     }
 
+    @Cacheable(value = "categoryAnalytics", key = "T(org.springframework.security.core.context.SecurityContextHolder)" +
+            ".getContext().getAuthentication().getName() + '_' + #from + '_' + #to + '_' + #type")
     public List<CategoryAnalyticsDto> getCategoryAnalytics(LocalDateTime from, LocalDateTime to, TransactionType type) {
         User user = getCurrentUser();
 
@@ -62,6 +67,8 @@ public class AnalyticsService {
                         (double) categorySumProjection.getTotalAmount() / totalSum * 100)).toList();
     }
 
+    @Cacheable(value = "monthlyStats", key = "T(org.springframework.security.core.context.SecurityContextHolder)" +
+            ".getContext().getAuthentication().getName() + '_' + #from + '_' + #to")
     public List<MonthlyAnalyticsDto> getMonthlyStats(LocalDateTime from, LocalDateTime to) {
         User user = getCurrentUser();
 
@@ -72,6 +79,8 @@ public class AnalyticsService {
                         monthlySumProjection.getTotalExpense())).toList();
     }
 
+    @Cacheable(value = "budgetStatus", key = "T(org.springframework.security.core.context.SecurityContextHolder)" +
+            ".getContext().getAuthentication().getName()")
     public List<BudgetStatusDto> getBudgetStatus() {
         User user = getCurrentUser();
 
