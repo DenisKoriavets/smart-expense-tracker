@@ -3,10 +3,13 @@ package com.github.deniskoriavets.smartexpensetracker.service;
 import com.github.deniskoriavets.smartexpensetracker.dto.auth.AuthenticationResponse;
 import com.github.deniskoriavets.smartexpensetracker.dto.auth.LoginRequest;
 import com.github.deniskoriavets.smartexpensetracker.dto.auth.RegisterRequest;
+import com.github.deniskoriavets.smartexpensetracker.entity.Category;
 import com.github.deniskoriavets.smartexpensetracker.entity.RefreshToken;
 import com.github.deniskoriavets.smartexpensetracker.entity.User;
+import com.github.deniskoriavets.smartexpensetracker.entity.enums.CategoryType;
 import com.github.deniskoriavets.smartexpensetracker.entity.enums.Role;
 import com.github.deniskoriavets.smartexpensetracker.exception.TokenException;
+import com.github.deniskoriavets.smartexpensetracker.repository.CategoryRepository;
 import com.github.deniskoriavets.smartexpensetracker.repository.RefreshTokenRepository;
 import com.github.deniskoriavets.smartexpensetracker.repository.UserRepository;
 import com.github.deniskoriavets.smartexpensetracker.security.JwtService;
@@ -18,12 +21,14 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
 @Transactional
 public class AuthService {
     private final UserRepository userRepository;
+    private final CategoryRepository categoryRepository;
     private final RefreshTokenRepository refreshTokenRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
@@ -41,6 +46,8 @@ public class AuthService {
                 .build();
 
         userRepository.save(user);
+
+        createDefaultCategoriesForUser(user);
 
         var accessToken = jwtService.generateAccessToken(user);
         var refreshToken = jwtService.generateRefreshToken(user);
@@ -77,20 +84,6 @@ public class AuthService {
         return new AuthenticationResponse(accessToken, refreshToken);
     }
 
-    private void saveUserRefreshToken(User user, String refreshToken) {
-        var refreshTokenEntity = RefreshToken.builder()
-                .user(user)
-                .token(refreshToken)
-                .expiryDate(LocalDateTime.now().plusDays(7))
-                .revoked(false)
-                .build();
-        refreshTokenRepository.save(refreshTokenEntity);
-    }
-
-    private void revokeAllUserTokens(User user) {
-        refreshTokenRepository.deleteByUser(user);
-    }
-
     public AuthenticationResponse refreshToken(String refreshToken) {
         var tokenEntity = refreshTokenRepository.findByToken(refreshToken)
                 .orElseThrow(() -> new TokenException("Refresh token not found"));
@@ -113,5 +106,32 @@ public class AuthService {
     public void logout(String refreshToken) {
         refreshTokenRepository.findByToken(refreshToken)
                 .ifPresent(refreshTokenRepository::delete);
+    }
+
+    private void saveUserRefreshToken(User user, String refreshToken) {
+        var refreshTokenEntity = RefreshToken.builder()
+                .user(user)
+                .token(refreshToken)
+                .expiryDate(LocalDateTime.now().plusDays(7))
+                .revoked(false)
+                .build();
+        refreshTokenRepository.save(refreshTokenEntity);
+    }
+
+    private void revokeAllUserTokens(User user) {
+        refreshTokenRepository.deleteByUser(user);
+    }
+
+    private void createDefaultCategoriesForUser(User user) {
+        List<Category> defaultCategories = List.of(
+                Category.builder().user(user).name("Продукти").type(CategoryType.EXPENSE).build(),
+                Category.builder().user(user).name("Транспорт").type(CategoryType.EXPENSE).build(),
+                Category.builder().user(user).name("Житло та комуналка").type(CategoryType.EXPENSE).build(),
+                Category.builder().user(user).name("Розваги").type(CategoryType.EXPENSE).build(),
+                Category.builder().user(user).name("Здоров'я").type(CategoryType.EXPENSE).build(),
+                Category.builder().user(user).name("Зарплата").type(CategoryType.INCOME).build(),
+                Category.builder().user(user).name("Подарунки").type(CategoryType.INCOME).build()
+        );
+        categoryRepository.saveAll(defaultCategories);
     }
 }
