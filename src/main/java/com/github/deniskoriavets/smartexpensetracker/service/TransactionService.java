@@ -3,9 +3,6 @@ package com.github.deniskoriavets.smartexpensetracker.service;
 import com.github.deniskoriavets.smartexpensetracker.dto.transaction.CreateTransactionDto;
 import com.github.deniskoriavets.smartexpensetracker.dto.transaction.TransactionResponseDto;
 import com.github.deniskoriavets.smartexpensetracker.dto.transaction.UpdateTransactionDto;
-import com.github.deniskoriavets.smartexpensetracker.entity.Account;
-import com.github.deniskoriavets.smartexpensetracker.entity.Category;
-import com.github.deniskoriavets.smartexpensetracker.entity.Transaction;
 import com.github.deniskoriavets.smartexpensetracker.entity.User;
 import com.github.deniskoriavets.smartexpensetracker.mapper.TransactionMapper;
 import com.github.deniskoriavets.smartexpensetracker.repository.AccountRepository;
@@ -50,7 +47,7 @@ public class TransactionService {
         return transactionMapper.toDto(transactionRepository.save(transaction));
     }
 
-    public List<TransactionResponseDto> getTransactionsByAccount(UUID accountId) {
+    public List<TransactionResponseDto> getTransactionsByAccountId(UUID accountId) {
         var user = getCurrentUser();
 
         var account = accountRepository.findById(accountId).orElseThrow(EntityNotFoundException::new);
