@@ -2,6 +2,8 @@ package com.github.deniskoriavets.smartexpensetracker.repository;
 
 import com.github.deniskoriavets.smartexpensetracker.entity.Transaction;
 import com.github.deniskoriavets.smartexpensetracker.entity.enums.TransactionType;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
@@ -10,7 +12,7 @@ import java.util.List;
 import java.util.UUID;
 
 public interface TransactionRepository extends JpaRepository<Transaction, UUID> {
-    List<Transaction> findByAccountId(UUID accountId);
+    Page<Transaction> findByAccountId(UUID accountId, Pageable pageable);
 
     @Query("select t from Transaction t where t.account.id = :accountId and t.transactionDate between :startDate and :endDate")
     List<Transaction> findByAccountIdAndTransactionDateBetween(UUID accountId, LocalDateTime startDate, LocalDateTime endDate);

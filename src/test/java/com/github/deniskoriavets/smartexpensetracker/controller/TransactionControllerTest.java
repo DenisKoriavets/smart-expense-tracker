@@ -133,16 +133,23 @@ public class TransactionControllerTest {
     }
 
     @Test
-    @DisplayName("Should return 200 OK and list of Transactions by Account ID")
+    @DisplayName("Should return 200 OK and paginated list of Transactions by Account ID")
     void getTransactionsByAccountIdShouldReturn200AndList() throws Exception {
         mockMvc.perform(get("/api/transactions/account/{accountId}", testAccount.getId())
+                        // Передаємо параметри пагінації (необов'язково, але для тесту корисно)
+                        .param("page", "0")
+                        .param("size", "10")
                         .header("Authorization", "Bearer " + jwtToken)
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.size()").value(1))
-                .andExpect(jsonPath("$[0].description").value("Test"))
-                .andExpect(jsonPath("$[0].amount").value(500))
-                .andExpect(jsonPath("$[0].type").value("EXPENSE"));
+                // Тепер розмір масиву перевіряємо в полі "content"
+                .andExpect(jsonPath("$.content.size()").value(1))
+                // І до полів звертаємося через "content[0]"
+                .andExpect(jsonPath("$.content[0].description").value("Test"))
+                .andExpect(jsonPath("$.content[0].amount").value(500))
+                .andExpect(jsonPath("$.content[0].type").value("EXPENSE"))
+                // Додатково можемо перевірити загальну кількість елементів
+                .andExpect(jsonPath("$.totalElements").value(1));
     }
 
     @Test

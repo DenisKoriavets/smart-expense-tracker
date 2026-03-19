@@ -7,6 +7,9 @@ import com.github.deniskoriavets.smartexpensetracker.service.TransactionService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springdoc.core.annotations.ParameterObject;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -27,8 +30,8 @@ public class TransactionController {
     }
 
     @GetMapping("/account/{accountId}")
-    public ResponseEntity<List<TransactionResponseDto>> getTransactionsByAccountId(@PathVariable UUID accountId) {
-        return ResponseEntity.status(HttpStatus.OK).body(transactionService.getTransactionsByAccountId(accountId));
+    public ResponseEntity<Page<TransactionResponseDto>> getTransactionsByAccountId(@PathVariable UUID accountId, @ParameterObject Pageable pageable) {
+        return ResponseEntity.status(HttpStatus.OK).body(transactionService.getTransactionsByAccountId(accountId, pageable));
     }
 
     @GetMapping("/{id}")

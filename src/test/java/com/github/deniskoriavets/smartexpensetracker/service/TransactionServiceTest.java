@@ -21,6 +21,10 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -123,10 +127,12 @@ public class TransactionServiceTest {
     }
 
     @Test
-    @DisplayName("Should return list of transactions for a specific account")
-    void getTransactionsByAccountShouldReturnListOfTransactions() {
+    @DisplayName("Should return paginated list of transactions for a specific account")
+    void getTransactionsByAccountShouldReturnPaginatedListOfTransactions() {
         // Arrange
         mockSecurityContext(testUser.getEmail());
+        Pageable pageable = PageRequest.of(0, 10);
+        Page<Transaction> transactionPage = new PageImpl<>(List.of(testTransaction));
 
         var expectedDto = new TransactionResponseDto(
                 testTransaction.getId(), testAccount.getId(), testCategory.getId(),
@@ -136,15 +142,18 @@ public class TransactionServiceTest {
 
         when(userRepository.findByEmail(testUser.getEmail())).thenReturn(Optional.of(testUser));
         when(accountRepository.findById(testAccount.getId())).thenReturn(Optional.of(testAccount));
-        when(transactionRepository.findByAccountId(testAccount.getId())).thenReturn(List.of(testTransaction));
+
+        when(transactionRepository.findByAccountId(testAccount.getId(), pageable)).thenReturn(transactionPage);
+
         when(transactionMapper.toDto(any())).thenReturn(expectedDto);
 
         // Act
-        var result = transactionService.getTransactionsByAccountId(testAccount.getId());
+        Page<TransactionResponseDto> result = transactionService.getTransactionsByAccountId(testAccount.getId(), pageable);
 
         // Assert
-        assertEquals(1, result.size());
-        assertEquals(expectedDto, result.getFirst());
+        assertNotNull(result);
+        assertEquals(1, result.getTotalElements());
+        assertEquals(expectedDto, result.getContent().getFirst());
     }
 
     @Test

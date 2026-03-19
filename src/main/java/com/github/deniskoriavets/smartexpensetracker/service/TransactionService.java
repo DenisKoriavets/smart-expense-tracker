@@ -11,6 +11,8 @@ import com.github.deniskoriavets.smartexpensetracker.repository.TransactionRepos
 import com.github.deniskoriavets.smartexpensetracker.repository.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -47,14 +49,15 @@ public class TransactionService {
         return transactionMapper.toDto(transactionRepository.save(transaction));
     }
 
-    public List<TransactionResponseDto> getTransactionsByAccountId(UUID accountId) {
+    public Page<TransactionResponseDto> getTransactionsByAccountId(UUID accountId, Pageable pageable) {
         var user = getCurrentUser();
 
         var account = accountRepository.findById(accountId).orElseThrow(EntityNotFoundException::new);
         if (!account.getUser().getId().equals(user.getId()))
             throw new EntityNotFoundException();
 
-        return transactionRepository.findByAccountId(accountId).stream().map(transactionMapper::toDto).toList();
+        return transactionRepository.findByAccountId(accountId, pageable)
+                .map(transactionMapper::toDto);
     }
 
     public TransactionResponseDto getTransactionById(UUID id) {
