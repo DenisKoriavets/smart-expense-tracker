@@ -3,6 +3,7 @@ package com.github.deniskoriavets.smartexpensetracker.controller;
 import com.github.deniskoriavets.smartexpensetracker.dto.analytics.*;
 import com.github.deniskoriavets.smartexpensetracker.entity.enums.TransactionType;
 import com.github.deniskoriavets.smartexpensetracker.service.AnalyticsService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
@@ -13,6 +14,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/analytics")
+@Tag(name = "Analytics", description = "Статистика")
 @RequiredArgsConstructor
 public class AnalyticsController {
 
