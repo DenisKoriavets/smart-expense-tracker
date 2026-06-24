@@ -20,7 +20,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -51,13 +53,22 @@ public class TransactionService {
         return transactionMapper.toDto(transactionRepository.save(transaction));
     }
 
+    public List<TransactionResponseDto> getAllTransactions() {
+        var user = getCurrentUser();
+        return transactionRepository.findAll().stream()
+            .filter(t -> t.getAccount().getUser().getId().equals(user.getId()))
+            .sorted((t1, t2) -> t2.getCreatedAt().compareTo(t1.getCreatedAt()))
+            .map(transactionMapper::toDto)
+            .collect(Collectors.toList());
+    }
+
     public Page<TransactionResponseDto> getTransactionsByAccountId(
-            UUID accountId,
-            TransactionType type,
-            UUID categoryId,
-            LocalDateTime from,
-            LocalDateTime to,
-            Pageable pageable) {
+        UUID accountId,
+        TransactionType type,
+        UUID categoryId,
+        LocalDateTime from,
+        LocalDateTime to,
+        Pageable pageable) {
 
         var user = getCurrentUser();
         var account = accountRepository.findById(accountId).orElseThrow(EntityNotFoundException::new);
@@ -65,7 +76,7 @@ public class TransactionService {
             throw new EntityNotFoundException();
 
         return transactionRepository.findByAccountIdAndFilters(accountId, type, categoryId, from, to, pageable)
-                .map(transactionMapper::toDto);
+            .map(transactionMapper::toDto);
     }
 
     public TransactionResponseDto getTransactionById(UUID id) {
@@ -110,6 +121,6 @@ public class TransactionService {
     private User getCurrentUser() {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
         return userRepository.findByEmail(email)
-                .orElseThrow(() -> new EntityNotFoundException("User not found"));
+            .orElseThrow(() -> new EntityNotFoundException("User not found"));
     }
 }

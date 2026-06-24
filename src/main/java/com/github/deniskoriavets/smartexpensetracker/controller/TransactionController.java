@@ -18,6 +18,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -33,18 +34,24 @@ public class TransactionController {
         return ResponseEntity.status(HttpStatus.CREATED).body(transactionService.createTransaction(createTransactionDto));
     }
 
+    @GetMapping
+    @Operation(summary = "Отримати всі транзакції", description = "Повертає список всіх транзакцій поточного користувача для дашборду")
+    public ResponseEntity<List<TransactionResponseDto>> getAllTransactions() {
+        return ResponseEntity.ok(transactionService.getAllTransactions());
+    }
+
     @GetMapping("/account/{accountId}")
-    @Operation(summary = "Отримати транзакції рахунку", description = "Повертає пагінований список транзакцій для конкретного рахунку з можливістю фільтрації за часом та типом")
+    @Operation(summary = "Отримати транзакції рахунку", description = "Повертає пагінований список транзакцій для конкретного рахунку")
     public ResponseEntity<Page<TransactionResponseDto>> getTransactionsByAccountId(
-            @PathVariable UUID accountId,
-            @RequestParam(required = false) TransactionType type,
-            @RequestParam(required = false) UUID categoryId,
-            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime from,
-            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime to,
-            @ParameterObject Pageable pageable) {
+        @PathVariable UUID accountId,
+        @RequestParam(required = false) TransactionType type,
+        @RequestParam(required = false) UUID categoryId,
+        @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime from,
+        @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime to,
+        @ParameterObject Pageable pageable) {
 
         return ResponseEntity.ok(transactionService.getTransactionsByAccountId(
-                accountId, type, categoryId, from, to, pageable));
+            accountId, type, categoryId, from, to, pageable));
     }
 
     @GetMapping("/{id}")
@@ -60,8 +67,8 @@ public class TransactionController {
     }
 
     @DeleteMapping("/{id}")
-    @Operation(summary = "Видалити транзакцію", description = "Видаляє транзакцію (баланс рахунку перерахується автоматично)")
-    public ResponseEntity<TransactionResponseDto> deleteTransaction(@PathVariable UUID id) {
+    @Operation(summary = "Видалити транзакцію", description = "Видаляє транзакцію")
+    public ResponseEntity<Void> deleteTransaction(@PathVariable UUID id) {
         transactionService.deleteTransaction(id);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
